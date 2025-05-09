@@ -1,14 +1,15 @@
 import React, { KeyboardEventHandler, useRef } from 'react'
 
-import { ClearOutlined, SendOutlined } from '@ant-design/icons'
+import { ClearOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons'
 
 import { ChatRole, SendBarProps } from './interface'
 import Show from './Show'
 
 const SendBar = (props: SendBarProps) => {
-  const { loading, disabled, onSend, onClear, onStop } = props
+  const { loading, disabled, onSend, onClear, onStop, onImageUpload } = props
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const onInputAutoSize = () => {
     if (inputRef.current) {
@@ -33,6 +34,17 @@ const SendBar = (props: SendBarProps) => {
       onSend({
         content,
         role: ChatRole.User
+      })
+    }
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && onImageUpload) {
+      onImageUpload(file).then(() => {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
       })
     }
   }
@@ -70,6 +82,21 @@ const SendBar = (props: SendBarProps) => {
           onKeyDown={onKeydown}
           onInput={onInputAutoSize}
         />
+        {onImageUpload && (
+          <div className="image-upload">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={disabled}
+              title="Upload image"
+            />
+            <div className="upload-icon">
+              <PictureOutlined />
+            </div>
+          </div>
+        )}
         <button className="button" title="Send" disabled={disabled} onClick={handleSend}>
           <SendOutlined />
         </button>

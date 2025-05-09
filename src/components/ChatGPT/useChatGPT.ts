@@ -41,6 +41,25 @@ const requestMessage = async (
   return data.getReader()
 }
 
+const getImageDescription = async (imageBase64: string) => {
+  const response = await fetch('/api/image-description', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      image: imageBase64
+    })
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to get image description')
+  }
+
+  const data = await response.json()
+  return data.description
+}
+
 export const useChatGPT = (props: ChatGPTProps) => {
   const { fetchPath } = props
   const [, forceUpdate] = useReducer((x) => !x, false)
@@ -120,6 +139,42 @@ export const useChatGPT = (props: ChatGPTProps) => {
     setMessages([])
   }
 
+  const onImageUpload = async (file: File) => {
+    try {
+      setLoading(true)
+      
+      const reader = new FileReader()
+      const imagePromise = new Promise<string>((resolve) => {
+        reader.onload = (e) => {
+          resolve(e.target?.result as string)
+        }
+      })
+      reader.readAsDataURL(file)
+      
+      const imageBase64 = await imagePromise
+      
+      const description = await getImageDescription(imageBase64)
+      
+      const userMessage: ChatMessage = {
+        content: `我上传了一张图片。`,
+        role: ChatRole.User,
+        image: imageBase64
+      }
+      
+      const assistantMessage: ChatMessage = {
+        content: `图片描述: ${description}`,
+        role: ChatRole.Assistant
+      }
+      
+      setMessages([...messages, userMessage, assistantMessage])
+      setLoading(false)
+      scrollDown()
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     new ClipboardJS('.chat-wrapper .copy-btn')
   }, [])
@@ -131,6 +186,7 @@ export const useChatGPT = (props: ChatGPTProps) => {
     currentMessage,
     onSend,
     onClear,
-    onStop
+    onStop,
+    onImageUpload
   }
 }

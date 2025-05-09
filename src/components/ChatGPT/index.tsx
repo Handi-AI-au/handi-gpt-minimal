@@ -9,7 +9,7 @@ import './index.less'
 import 'highlight.js/styles/atom-one-dark.css'
 
 const ChatGPT = (props: ChatGPTProps) => {
-  const { loading, disabled, messages, currentMessage, onSend, onClear, onStop } = useChatGPT(props)
+  const { loading, disabled, messages, currentMessage, onSend, onClear, onStop, onImageUpload } = useChatGPT(props)
 
   return (
     <div className="chat-wrapper">
@@ -25,6 +25,7 @@ const ChatGPT = (props: ChatGPTProps) => {
         onSend={onSend}
         onClear={onClear}
         onStop={onStop}
+        onImageUpload={onImageUpload}
       />
     </div>
   )

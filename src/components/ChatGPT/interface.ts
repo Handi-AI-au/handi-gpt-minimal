@@ -13,6 +13,7 @@ export interface ChatGPTProps {
 export interface ChatMessage {
   content: string
   role: ChatRole
+  image?: string
 }
 
 export interface ChatMessageItemProps {
@@ -25,6 +26,7 @@ export interface SendBarProps {
   onSend: (message: ChatMessage) => void
   onClear: () => void
   onStop: () => void
+  onImageUpload?: (file: File) => Promise<void>
 }
 
 export interface ShowProps {

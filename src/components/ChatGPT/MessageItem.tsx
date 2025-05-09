@@ -31,7 +31,14 @@ const MessageItem = (props: ChatMessageItemProps) => {
         <div className="avatar">
           <span className={message.role}></span>
         </div>
-        <div className="message" dangerouslySetInnerHTML={{ __html: md.render(message.content) }} />
+        <div className="message">
+          {message.image && (
+            <div className="message-image">
+              <img src={message.image} alt="Uploaded" />
+            </div>
+          )}
+          <div dangerouslySetInnerHTML={{ __html: md.render(message.content) }} />
+        </div>
       </div>
     </div>
   )
