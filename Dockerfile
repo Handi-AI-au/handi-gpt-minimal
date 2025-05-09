@@ -12,6 +12,8 @@ WORKDIR /app
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
 RUN npm ci
+# Install type definitions
+RUN npm install --save-dev @types/node @types/react @types/markdown-it
 
 # Rebuild the source code only when needed
 FROM base AS builder

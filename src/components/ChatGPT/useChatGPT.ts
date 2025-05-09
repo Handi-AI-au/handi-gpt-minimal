@@ -149,12 +149,11 @@ export const useChatGPT = (props: ChatGPTProps) => {
     // 创建用于API请求的消息数组
     const messagesToAPI: ChatMessage[] = newMessages.map((msg, index) => {
       if (index === newMessages.length - 1 && msg.images && msg.images.length > 0) {
-        // 只为最新消息添加图片，如果有多张图片，只使用第一张
-        // 因为后端API接口目前仅支持单张图片，而不是数组
+        // 处理最新消息的所有图片
         return {
           content: msg.content,
           role: msg.role,
-          image: msg.images[0] // 仅发送第一张图片
+          image: msg.images // 发送所有图片
         };
       }
       // 返回无图片的普通消息

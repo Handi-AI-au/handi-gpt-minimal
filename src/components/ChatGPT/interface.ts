@@ -13,7 +13,7 @@ export interface ChatGPTProps {
 export interface ChatMessage {
   content: string
   role: ChatRole
-  image?: string
+  image?: string | string[]
   images?: string[]
 }
 

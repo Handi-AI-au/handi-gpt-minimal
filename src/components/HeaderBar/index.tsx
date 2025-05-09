@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { GithubOutlined } from '@ant-design/icons'
+import { LinkedinOutlined } from '@ant-design/icons'
 import { Layout, Space, Typography } from 'antd'
 
 import styles from './index.module.less'
@@ -16,18 +16,18 @@ const HeaderBar = () => {
         <div className={styles.logoBar}>
           <Link href="/">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img alt="logo" src="/logo192.png" />
-            <h1>ChatGPT Minimal</h1>
+            <img alt="logo" src="/logo-handi.png" />
+            <h1>Handi AI</h1>
           </Link>
         </div>
         <Space className={styles.right} size={0}>
           <span className={styles.right}>
             <Link
               className={styles.action}
-              href="https://github.com/blrchen/chatgpt-minimal"
+              href="https://www.linkedin.com/company/handiaus/"
               target="_blank"
             >
-              <GithubOutlined />
+              <LinkedinOutlined />
             </Link>
           </span>
         </Space>

@@ -5,6 +5,21 @@ export const config = {
   runtime: 'edge'
 }
 
+// 定义OpenAI消息内容的接口
+interface TextContent {
+  type: 'text';
+  text: string;
+}
+
+interface ImageUrlContent {
+  type: 'image_url';
+  image_url: {
+    url: string;
+  };
+}
+
+type ContentItem = TextContent | ImageUrlContent;
+
 const handler = async (req: Request): Promise<Response> => {
   try {
     const { messages } = (await req.json()) as {
@@ -13,7 +28,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // 检查是否有带图片的消息
     const hasImageMessages = messages.some(msg => 
-      msg.image && typeof msg.image === 'string' && msg.image.startsWith('data:image/')
+      (msg.image && typeof msg.image === 'string' && msg.image.startsWith('data:image/')) ||
+      (msg.image && Array.isArray(msg.image) && msg.image.length > 0)
     );
     
     // 处理消息，为OpenAI API准备
@@ -22,12 +38,14 @@ const handler = async (req: Request): Promise<Response> => {
     // 获取API配置
     const { apiUrl, apiKey, model } = getApiConfig();
     
+    // 检查最后一条消息是否有图片
+    const lastMessage = messages[messages.length - 1];
+    const hasStringImage = lastMessage.image && typeof lastMessage.image === 'string' && lastMessage.image.startsWith('data:image/');
+    const hasArrayImage = lastMessage.image && Array.isArray(lastMessage.image) && lastMessage.image.length > 0;
+    
     // 如果有图片消息并且是最后一条，使用非流式请求获取单个完整响应
     // 否则使用流式响应以获得更好的用户体验
-    if (hasImageMessages && 
-      typeof messages[messages.length - 1].image === 'string' && 
-      messages[messages.length - 1].image?.startsWith('data:image/')
-    ) {
+    if (hasImageMessages && (hasStringImage || hasArrayImage)) {
       const response = await singleResponse(apiUrl, apiKey, model, processedMessages);
       return new Response(JSON.stringify(response), {
         headers: { 'Content-Type': 'application/json' }
@@ -66,14 +84,30 @@ const processMessages = (messages: Message[]) => {
     
     charCount += message.content.length;
     
-    // 处理带图片的消息
+    // 处理带单张图片的消息（字符串形式）
     if (message.image && typeof message.image === 'string' && message.image.startsWith('data:image/')) {
       processedMessages.push({
         role: message.role,
         content: [
-          { type: 'text', text: message.content },
-          { type: 'image_url', image_url: { url: message.image } }
+          { type: 'text', text: message.content } as TextContent,
+          { type: 'image_url', image_url: { url: message.image } } as ImageUrlContent
         ]
+      });
+    } 
+    // 处理带多张图片的消息（数组形式）
+    else if (message.image && Array.isArray(message.image) && message.image.length > 0) {
+      const content: ContentItem[] = [{ type: 'text', text: message.content }];
+      
+      // 添加所有图片到content数组
+      message.image.forEach(img => {
+        if (img && typeof img === 'string' && img.startsWith('data:image/')) {
+          content.push({ type: 'image_url', image_url: { url: img } } as ImageUrlContent);
+        }
+      });
+      
+      processedMessages.push({
+        role: message.role,
+        content: content
       });
     } else {
       // 普通文本消息

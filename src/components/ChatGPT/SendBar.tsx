@@ -1,4 +1,5 @@
 import React, { KeyboardEventHandler, useRef } from 'react'
+import Image from 'next/image'
 
 import { ClearOutlined, DeleteOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons'
 
@@ -37,13 +38,20 @@ const SendBar = (props: SendBarProps) => {
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file && onImageUpload) {
-      onImageUpload(file).then(() => {
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''
-        }
-      })
+    const files = e.target.files;
+    if (files && files.length > 0 && onImageUpload) {
+      // 处理多个文件
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        onImageUpload(file).catch(error => {
+          console.error('Error uploading image:', error);
+        });
+      }
+      
+      // 清空文件选择器
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   }
 
@@ -74,7 +82,17 @@ const SendBar = (props: SendBarProps) => {
           <div className="uploaded-images">
             {uploadedImages.map((image, index) => (
               <div key={index} className="image-preview">
-                <img src={image} alt={`Uploaded ${index}`} />
+                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                  <Image
+                    src={image}
+                    alt={`Uploaded ${index}`}
+                    fill
+                    style={{
+                      objectFit: 'cover',
+                      borderRadius: '4px'
+                    }}
+                  />
+                </div>
                 {removeUploadedImage && (
                   <button 
                     className="remove-image" 
@@ -107,7 +125,8 @@ const SendBar = (props: SendBarProps) => {
                 accept="image/*"
                 onChange={handleImageUpload}
                 disabled={disabled}
-                title="Upload image"
+                title="Upload images"
+                multiple
               />
               <div className="upload-icon">
                 <PictureOutlined />

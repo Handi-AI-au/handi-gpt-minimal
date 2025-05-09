@@ -29,17 +29,18 @@ const MessageItem = (props: ChatMessageItemProps) => {
   // 渲染单个图片
   const renderSingleImage = (imageUrl: string) => (
     <div className="message-image">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img 
-        src={imageUrl} 
-        alt="Uploaded" 
-        style={{ 
-          maxWidth: '100%', 
-          maxHeight: '400px',
-          borderRadius: '4px',
-          boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
-        }} 
-      />
+      <div style={{ position: 'relative', width: '100%', height: '300px', maxWidth: '500px' }}>
+        <Image 
+          src={imageUrl} 
+          alt="Uploaded" 
+          fill
+          style={{ 
+            objectFit: 'contain',
+            borderRadius: '4px',
+            boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
+          }} 
+        />
+      </div>
     </div>
   )
 
@@ -48,18 +49,18 @@ const MessageItem = (props: ChatMessageItemProps) => {
     <div className="message-images">
       {images.map((img, index) => (
         <div key={index} className="message-image">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src={img} 
-            alt={`Uploaded ${index}`} 
-            style={{ 
-              maxWidth: '100%', 
-              maxHeight: '400px',
-              borderRadius: '4px',
-              boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-              marginBottom: '8px'
-            }} 
-          />
+          <div style={{ position: 'relative', width: '100%', height: '300px', maxWidth: '500px', marginBottom: '8px' }}>
+            <Image 
+              src={img} 
+              alt={`Uploaded ${index}`} 
+              fill
+              style={{ 
+                objectFit: 'contain',
+                borderRadius: '4px',
+                boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
+              }} 
+            />
+          </div>
         </div>
       ))}
     </div>
@@ -72,12 +73,17 @@ const MessageItem = (props: ChatMessageItemProps) => {
           <span className={message.role}></span>
         </div>
         <div className="message">
-          {/* 显示单张图片 */}
+          {/* 显示单张图片（字符串形式） */}
           {message.image && typeof message.image === 'string' && message.image.startsWith('data:image/') && 
             renderSingleImage(message.image)
           }
           
-          {/* 显示多张图片 */}
+          {/* 显示单张图片（数组形式，用于后端返回的数据） */}
+          {message.image && Array.isArray(message.image) && message.image.length > 0 &&
+            renderMultipleImages(message.image)
+          }
+          
+          {/* 显示多张图片（前端images属性） */}
           {message.images && message.images.length > 0 && 
             renderMultipleImages(message.images)
           }
