@@ -15,6 +15,7 @@ const HeaderBar = () => {
       <Header className={styles.header}>
         <div className={styles.logoBar}>
           <Link href="/">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img alt="logo" src="/logo192.png" />
             <h1>ChatGPT Minimal</h1>
           </Link>

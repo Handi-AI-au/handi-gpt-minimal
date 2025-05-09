@@ -14,6 +14,7 @@ export interface ChatMessage {
   content: string
   role: ChatRole
   image?: string
+  images?: string[]
 }
 
 export interface ChatMessageItemProps {
@@ -27,6 +28,8 @@ export interface SendBarProps {
   onClear: () => void
   onStop: () => void
   onImageUpload?: (file: File) => Promise<void>
+  uploadedImages?: string[]
+  removeUploadedImage?: (index: number) => void
 }
 
 export interface ShowProps {

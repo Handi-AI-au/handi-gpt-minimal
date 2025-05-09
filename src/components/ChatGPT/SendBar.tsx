@@ -1,12 +1,12 @@
 import React, { KeyboardEventHandler, useRef } from 'react'
 
-import { ClearOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons'
+import { ClearOutlined, DeleteOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons'
 
 import { ChatRole, SendBarProps } from './interface'
 import Show from './Show'
 
 const SendBar = (props: SendBarProps) => {
-  const { loading, disabled, onSend, onClear, onStop, onImageUpload } = props
+  const { loading, disabled, onSend, onClear, onStop, onImageUpload, uploadedImages, removeUploadedImage } = props
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -27,15 +27,13 @@ const SendBar = (props: SendBarProps) => {
   }
 
   const handleSend = () => {
-    const content = inputRef.current?.value
-    if (content) {
-      inputRef.current!.value = ''
-      inputRef.current!.style.height = 'auto'
-      onSend({
-        content,
-        role: ChatRole.User
-      })
-    }
+    const content = inputRef.current?.value || ''
+    inputRef.current!.value = ''
+    inputRef.current!.style.height = 'auto'
+    onSend({
+      content,
+      role: ChatRole.User
+    })
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,38 +69,58 @@ const SendBar = (props: SendBarProps) => {
       }
       loading={loading}
     >
-      <div className="send-bar">
-        <textarea
-          ref={inputRef!}
-          className="input"
-          disabled={disabled}
-          placeholder="Shift + Enter for new line"
-          autoComplete="off"
-          rows={1}
-          onKeyDown={onKeydown}
-          onInput={onInputAutoSize}
-        />
-        {onImageUpload && (
-          <div className="image-upload">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              disabled={disabled}
-              title="Upload image"
-            />
-            <div className="upload-icon">
-              <PictureOutlined />
-            </div>
+      <div className="send-bar-container">
+        {uploadedImages && uploadedImages.length > 0 && (
+          <div className="uploaded-images">
+            {uploadedImages.map((image, index) => (
+              <div key={index} className="image-preview">
+                <img src={image} alt={`Uploaded ${index}`} />
+                {removeUploadedImage && (
+                  <button 
+                    className="remove-image" 
+                    onClick={() => removeUploadedImage(index)}
+                    title="Remove image"
+                  >
+                    <DeleteOutlined />
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         )}
-        <button className="button" title="Send" disabled={disabled} onClick={handleSend}>
-          <SendOutlined />
-        </button>
-        <button className="button" title="Clear" disabled={disabled} onClick={handleClear}>
-          <ClearOutlined />
-        </button>
+        <div className="send-bar">
+          <textarea
+            ref={inputRef!}
+            className="input"
+            disabled={disabled}
+            placeholder="Shift + Enter for new line"
+            autoComplete="off"
+            rows={1}
+            onKeyDown={onKeydown}
+            onInput={onInputAutoSize}
+          />
+          {onImageUpload && (
+            <div className="image-upload">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={disabled}
+                title="Upload image"
+              />
+              <div className="upload-icon">
+                <PictureOutlined />
+              </div>
+            </div>
+          )}
+          <button className="button" title="Send" disabled={disabled} onClick={handleSend}>
+            <SendOutlined />
+          </button>
+          <button className="button" title="Clear" disabled={disabled} onClick={handleClear}>
+            <ClearOutlined />
+          </button>
+        </div>
       </div>
     </Show>
   )

@@ -32,40 +32,31 @@ const requestMessage = async (
   if (!response.ok) {
     throw new Error(response.statusText)
   }
+  
+  // 检查响应的content-type
+  const contentType = response.headers.get('content-type')
+  
+  // 如果是JSON响应（非流式，通常是图片消息的响应）
+  if (contentType && contentType.includes('application/json')) {
+    const data = await response.json()
+    return { isJson: true, content: data.content }
+  }
+  
+  // 流式响应的处理
   const data = response.body
-
   if (!data) {
     throw new Error('No data')
   }
-
-  return data.getReader()
-}
-
-const getImageDescription = async (imageBase64: string) => {
-  const response = await fetch('/api/image-description', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      image: imageBase64
-    })
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to get image description')
-  }
-
-  const data = await response.json()
-  return data.description
+  return { isJson: false, reader: data.getReader() }
 }
 
 export const useChatGPT = (props: ChatGPTProps) => {
   const { fetchPath } = props
-  const [, forceUpdate] = useReducer((x) => !x, false)
+  const [, forceUpdate] = useReducer((x: boolean) => !x, false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [disabled] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
+  const [uploadedImages, setUploadedImages] = useState<string[]>([])
 
   const controller = useRef<AbortController | null>(null)
   const currentMessage = useRef<string>('')
@@ -88,13 +79,27 @@ export const useChatGPT = (props: ChatGPTProps) => {
     }
   }
 
-  const fetchMessage = async (messages: ChatMessage[]) => {
+  const fetchMessage = async (messagesToSend: ChatMessage[]) => {
     try {
       currentMessage.current = ''
       controller.current = new AbortController()
       setLoading(true)
 
-      const reader = await requestMessage(fetchPath, messages, controller.current)
+      const result = await requestMessage('/api/chat-unified', messagesToSend, controller.current)
+      
+      // 处理JSON响应（图片处理的情况）
+      if (result.isJson) {
+        currentMessage.current = result.content
+        archiveCurrentMessage()
+        return
+      }
+      
+      // 处理流式响应
+      if (!result.reader) {
+        throw new Error('Stream reader is undefined')
+      }
+      
+      const reader = result.reader
       const decoder = new TextDecoder('utf-8')
       let done = false
 
@@ -130,49 +135,68 @@ export const useChatGPT = (props: ChatGPTProps) => {
   }
 
   const onSend = (message: ChatMessage) => {
-    const newMessages = [...messages, message]
-    setMessages(newMessages)
-    fetchMessage(newMessages)
+    // 如果有上传的图片，将图片添加到消息中
+    let messagesToSend: ChatMessage = { ...message };
+    
+    if (uploadedImages.length > 0) {
+      // 创建带图片的消息
+      messagesToSend.images = uploadedImages;
+    }
+    
+    const newMessages = [...messages, messagesToSend];
+    setMessages(newMessages);
+    
+    // 创建用于API请求的消息数组
+    const messagesToAPI: ChatMessage[] = newMessages.map((msg, index) => {
+      if (index === newMessages.length - 1 && msg.images && msg.images.length > 0) {
+        // 只为最新消息添加图片，如果有多张图片，只使用第一张
+        // 因为后端API接口目前仅支持单张图片，而不是数组
+        return {
+          content: msg.content,
+          role: msg.role,
+          image: msg.images[0] // 仅发送第一张图片
+        };
+      }
+      // 返回无图片的普通消息
+      return {
+        content: msg.content,
+        role: msg.role
+      };
+    });
+    
+    fetchMessage(messagesToAPI);
+    
+    // 发送后清空已上传的图片
+    setUploadedImages([]);
   }
 
   const onClear = () => {
-    setMessages([])
+    setMessages([]);
+    setUploadedImages([]);
   }
 
   const onImageUpload = async (file: File) => {
     try {
-      setLoading(true)
-      
-      const reader = new FileReader()
+      // 将文件转换为base64
+      const reader = new FileReader();
       const imagePromise = new Promise<string>((resolve) => {
         reader.onload = (e) => {
-          resolve(e.target?.result as string)
+          resolve(e.target?.result as string);
         }
-      })
-      reader.readAsDataURL(file)
+      });
+      reader.readAsDataURL(file);
       
-      const imageBase64 = await imagePromise
+      const imageBase64 = await imagePromise;
       
-      const description = await getImageDescription(imageBase64)
-      
-      const userMessage: ChatMessage = {
-        content: `我上传了一张图片。`,
-        role: ChatRole.User,
-        image: imageBase64
-      }
-      
-      const assistantMessage: ChatMessage = {
-        content: `图片描述: ${description}`,
-        role: ChatRole.Assistant
-      }
-      
-      setMessages([...messages, userMessage, assistantMessage])
-      setLoading(false)
-      scrollDown()
+      // 将图片添加到上传图片数组中，但不立即发送
+      setUploadedImages((prev: string[]) => [...prev, imageBase64]);
     } catch (error) {
-      console.error('Error uploading image:', error)
-      setLoading(false)
+      console.error('Error uploading image:', error);
     }
+  }
+
+  const removeUploadedImage = (index: number) => {
+    setUploadedImages((prev: string[]) => prev.filter((_, i: number) => i !== index));
   }
 
   useEffect(() => {
@@ -187,6 +211,8 @@ export const useChatGPT = (props: ChatGPTProps) => {
     onSend,
     onClear,
     onStop,
-    onImageUpload
+    onImageUpload,
+    uploadedImages,
+    removeUploadedImage
   }
 }

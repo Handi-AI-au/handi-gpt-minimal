@@ -9,7 +9,24 @@ import './index.less'
 import 'highlight.js/styles/atom-one-dark.css'
 
 const ChatGPT = (props: ChatGPTProps) => {
-  const { loading, disabled, messages, currentMessage, onSend, onClear, onStop, onImageUpload } = useChatGPT(props)
+  // 使用统一 API 路径
+  const apiProps = {
+    ...props,
+    fetchPath: '/api/chat-unified'
+  }
+  
+  const { 
+    loading, 
+    disabled, 
+    messages, 
+    currentMessage, 
+    onSend, 
+    onClear, 
+    onStop, 
+    onImageUpload,
+    uploadedImages,
+    removeUploadedImage 
+  } = useChatGPT(apiProps)
 
   return (
     <div className="chat-wrapper">
@@ -26,6 +43,8 @@ const ChatGPT = (props: ChatGPTProps) => {
         onClear={onClear}
         onStop={onStop}
         onImageUpload={onImageUpload}
+        uploadedImages={uploadedImages}
+        removeUploadedImage={removeUploadedImage}
       />
     </div>
   )

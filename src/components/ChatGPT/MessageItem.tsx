@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 
 import MarkdownIt from 'markdown-it'
 import mdHighlight from 'markdown-it-highlightjs'
@@ -25,6 +26,45 @@ md.renderer.rules.fence = (...args) => {
 const MessageItem = (props: ChatMessageItemProps) => {
   const { message } = props
 
+  // 渲染单个图片
+  const renderSingleImage = (imageUrl: string) => (
+    <div className="message-image">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img 
+        src={imageUrl} 
+        alt="Uploaded" 
+        style={{ 
+          maxWidth: '100%', 
+          maxHeight: '400px',
+          borderRadius: '4px',
+          boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
+        }} 
+      />
+    </div>
+  )
+
+  // 渲染多张图片
+  const renderMultipleImages = (images: string[]) => (
+    <div className="message-images">
+      {images.map((img, index) => (
+        <div key={index} className="message-image">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src={img} 
+            alt={`Uploaded ${index}`} 
+            style={{ 
+              maxWidth: '100%', 
+              maxHeight: '400px',
+              borderRadius: '4px',
+              boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+              marginBottom: '8px'
+            }} 
+          />
+        </div>
+      ))}
+    </div>
+  )
+
   return (
     <div className="message-item">
       <div className="meta">
@@ -32,11 +72,17 @@ const MessageItem = (props: ChatMessageItemProps) => {
           <span className={message.role}></span>
         </div>
         <div className="message">
-          {message.image && (
-            <div className="message-image">
-              <img src={message.image} alt="Uploaded" />
-            </div>
-          )}
+          {/* 显示单张图片 */}
+          {message.image && typeof message.image === 'string' && message.image.startsWith('data:image/') && 
+            renderSingleImage(message.image)
+          }
+          
+          {/* 显示多张图片 */}
+          {message.images && message.images.length > 0 && 
+            renderMultipleImages(message.images)
+          }
+          
+          {/* 显示文本内容 */}
           <div dangerouslySetInnerHTML={{ __html: md.render(message.content) }} />
         </div>
       </div>
