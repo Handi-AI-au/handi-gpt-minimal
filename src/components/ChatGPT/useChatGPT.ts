@@ -3,7 +3,12 @@ import { useEffect, useReducer, useRef, useState } from 'react'
 import ClipboardJS from 'clipboard'
 import { throttle } from 'lodash-es'
 
+import { uploadImageToExternalAPI } from '@/models/imageUploadService'
+import { useImageContext } from '@/models/imageContext'
 import { ChatGPTProps, ChatMessage, ChatRole } from './interface'
+
+// 全局标志，控制是否将图片同步到外部API
+const SYNC_TO_EXTERNAL_API = true;
 
 const scrollDown = throttle(
   () => {
@@ -57,6 +62,9 @@ export const useChatGPT = (props: ChatGPTProps) => {
   const [disabled] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  
+  // 使用图片上下文
+  const { addUploadedImageInfo } = useImageContext()
 
   const controller = useRef<AbortController | null>(null)
   const currentMessage = useRef<string>('')
@@ -171,7 +179,7 @@ export const useChatGPT = (props: ChatGPTProps) => {
 
   const onClear = () => {
     setMessages([]);
-    setUploadedImages([]);
+    setUploadedImages([]); // 清空本地上传的图片，但已上传到外部API的图片不受影响
   }
 
   const onImageUpload = async (file: File) => {
@@ -189,6 +197,24 @@ export const useChatGPT = (props: ChatGPTProps) => {
       
       // 将图片添加到上传图片数组中，但不立即发送
       setUploadedImages((prev: string[]) => [...prev, imageBase64]);
+      
+      // 同时将图片上传到外部API
+      if (SYNC_TO_EXTERNAL_API) {
+        try {
+          const result = await uploadImageToExternalAPI(imageBase64);
+          console.log('图片已成功上传到外部API:', result);
+          
+          // 将图片上传结果添加到上下文中
+          addUploadedImageInfo({
+            imageData: result,
+            uploadTime: Date.now(),
+            messageIndex: messages.length
+          });
+        } catch (uploadError) {
+          // 仅记录错误但不影响原有功能
+          console.error('上传图片到外部API时出错:', uploadError);
+        }
+      }
     } catch (error) {
       console.error('Error uploading image:', error);
     }

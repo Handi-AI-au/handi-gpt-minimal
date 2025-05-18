@@ -2,6 +2,7 @@ import Head from 'next/head'
 import '@/styles/globals.css'
 import 'antd/dist/antd.css'
 import type { AppProps } from 'next/app'
+import { ImageContextProvider } from '@/models/imageContext'
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -14,7 +15,9 @@ export default function App({ Component, pageProps }: AppProps) {
         />
         <meta name="description" content="Handi AI - 智能对话与图像分析助手" />
       </Head>
-      <Component {...pageProps} />
+      <ImageContextProvider>
+        <Component {...pageProps} />
+      </ImageContextProvider>
     </>
   )
 }
