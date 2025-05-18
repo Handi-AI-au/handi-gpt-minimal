@@ -22,9 +22,10 @@ type ContentItem = TextContent | ImageUrlContent;
 
 const handler = async (req: Request): Promise<Response> => {
   try {
-    const { messages } = (await req.json()) as {
-      messages: Message[]
-    }
+    const requestData = await req.json();
+    const { messages } = requestData as { messages: Message[] };
+    const isReportGeneration = requestData.generate_report === true;
+    const responseFormat = requestData.response_format;
 
     // 检查是否有带图片的消息
     const hasImageMessages = messages.some(msg => 
@@ -33,20 +34,22 @@ const handler = async (req: Request): Promise<Response> => {
     );
     
     // 处理消息，为OpenAI API准备
-    const processedMessages = processMessages(messages);
+    const processedMessages = isReportGeneration 
+      ? processReportGenerationMessages(messages) 
+      : processMessages(messages);
     
     // 获取API配置
     const { apiUrl, apiKey, model } = getApiConfig();
     
     // 检查最后一条消息是否有图片
     const lastMessage = messages[messages.length - 1];
-    const hasStringImage = lastMessage.image && typeof lastMessage.image === 'string' && lastMessage.image.startsWith('data:image/');
-    const hasArrayImage = lastMessage.image && Array.isArray(lastMessage.image) && lastMessage.image.length > 0;
+    const hasStringImage = lastMessage && lastMessage.image && typeof lastMessage.image === 'string' && lastMessage.image.startsWith('data:image/');
+    const hasArrayImage = lastMessage && lastMessage.image && Array.isArray(lastMessage.image) && lastMessage.image.length > 0;
     
-    // 如果有图片消息并且是最后一条，使用非流式请求获取单个完整响应
+    // 如果是报告生成请求，或者有图片消息并且是最后一条，使用非流式请求获取单个完整响应
     // 否则使用流式响应以获得更好的用户体验
-    if (hasImageMessages && (hasStringImage || hasArrayImage)) {
-      const response = await singleResponse(apiUrl, apiKey, model, processedMessages);
+    if (isReportGeneration || (hasImageMessages && (hasStringImage || hasArrayImage))) {
+      const response = await singleResponse(apiUrl, apiKey, model, processedMessages, responseFormat);
       return new Response(JSON.stringify(response), {
         headers: { 'Content-Type': 'application/json' }
       });
@@ -133,6 +136,15 @@ In every message, try to keep your questions short, a bit playful, and use perso
   return processedMessages;
 };
 
+// 处理报告生成消息
+const processReportGenerationMessages = (messages: Message[]) => {
+  // 由于报告生成通常只发送一条消息（包含提示词），这里直接处理
+  return messages.map(message => ({
+    role: message.role,
+    content: message.content
+  }));
+};
+
 // 获取API配置
 const getApiConfig = () => {
   const useAzureOpenAI =
@@ -166,7 +178,22 @@ const getApiConfig = () => {
 };
 
 // 非流式响应，用于处理图片
-const singleResponse = async (apiUrl: string, apiKey: string, model: string, messages: any[]) => {
+const singleResponse = async (apiUrl: string, apiKey: string, model: string, messages: any[], responseFormat?: any) => {
+  const requestBody: any = {
+    model: model,
+    frequency_penalty: 0,
+    max_tokens: 4000,
+    messages: messages,
+    presence_penalty: 0,
+    temperature: 0.7,
+    top_p: 0.95
+  };
+  
+  // 如果提供了responseFormat，添加到请求体
+  if (responseFormat) {
+    requestBody.response_format = responseFormat;
+  }
+  
   const res = await fetch(apiUrl, {
     headers: {
       'Content-Type': 'application/json',
@@ -174,15 +201,7 @@ const singleResponse = async (apiUrl: string, apiKey: string, model: string, mes
       'api-key': `${apiKey}`
     },
     method: 'POST',
-    body: JSON.stringify({
-      model: model,
-      frequency_penalty: 0,
-      max_tokens: 4000,
-      messages: messages,
-      presence_penalty: 0,
-      temperature: 0.7,
-      top_p: 0.95
-    })
+    body: JSON.stringify(requestBody)
   });
 
   if (res.status !== 200) {

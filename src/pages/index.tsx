@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Modal, Radio, Select, Input } from 'antd';
 import { useRouter } from 'next/router';
 import {
   ToolOutlined,
@@ -13,32 +11,10 @@ import styles from './landing.module.less';
 
 export default function LandingPage() {
   const router = useRouter();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [gender, setGender] = useState('');
-  const [age, setAge] = useState('');
-  const [email, setEmail] = useState('');
 
   const handleStartClick = () => {
-    setModalVisible(true);
-  };
-
-  const handleModalCancel = () => {
-    setModalVisible(false);
-  };
-
-  const handleSubmit = () => {
-    // Save user information to local storage
-    if (gender && age) {
-      localStorage.setItem('user_info', JSON.stringify({
-        gender,
-        age,
-        email: email || '',
-        timestamp: new Date().toISOString()
-      }));
-      
-      // Redirect to chat page
-      router.push('/chat');
-    }
+    // 直接跳转到聊天页面，不再弹出表单
+    router.push('/chat');
   };
 
   return (
@@ -103,63 +79,6 @@ export default function LandingPage() {
       <footer className={styles.footer}>
         <p>© {new Date().getFullYear()} Handi - Smart Home Repair Assistant</p>
       </footer>
-
-      <Modal
-        title={null}
-        open={modalVisible}
-        onCancel={handleModalCancel}
-        footer={null}
-        centered
-        width={400}
-        className={styles.modal}
-      >
-        <div className={styles.title}>We&apos;d love to know a little about you</div>
-        
-        <div className={styles.formItem}>
-          <label className={styles.label}>Your Gender</label>
-          <div className={styles.radioGroup}>
-            <Radio.Group onChange={(e) => setGender(e.target.value)} value={gender}>
-              <Radio value="male">Male</Radio>
-              <Radio value="female">Female</Radio>
-              <Radio value="other">Other</Radio>
-            </Radio.Group>
-          </div>
-        </div>
-        
-        <div className={styles.formItem}>
-          <label className={styles.label}>Your Age Group</label>
-          <Select
-            placeholder="Select your age range"
-            onChange={(value) => setAge(value)}
-            value={age}
-            className={styles.ageSelect}
-          >
-            <Select.Option value="18-25">18-25 years</Select.Option>
-            <Select.Option value="26-35">26-35 years</Select.Option>
-            <Select.Option value="36-45">36-45 years</Select.Option>
-            <Select.Option value="46-55">46-55 years</Select.Option>
-            <Select.Option value="56+">56 years and above</Select.Option>
-          </Select>
-        </div>
-        
-        <div className={styles.formItem}>
-          <label className={styles.label}>Email Address (Optional)</label>
-          <Input
-            placeholder="Share your email if you&apos;d like updates"
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-            className={styles.emailInput}
-          />
-        </div>
-        
-        <button 
-          className={styles.submitButton} 
-          onClick={handleSubmit}
-          disabled={!gender || !age}
-        >
-          Continue to Handi
-        </button>
-      </Modal>
     </div>
   );
 }
