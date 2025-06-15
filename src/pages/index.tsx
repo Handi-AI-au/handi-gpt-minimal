@@ -1,4 +1,6 @@
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { logEvent } from 'firebase/analytics';
 import {
   ToolOutlined,
   SearchOutlined,
@@ -6,11 +8,18 @@ import {
   RobotOutlined,
   ArrowRightOutlined
 } from '@ant-design/icons';
-
+import { useAnalytics } from '@/hooks/useAnalytics';
 import styles from './landing.module.less';
 
 export default function LandingPage() {
   const router = useRouter();
+  const analytics = useAnalytics();
+
+  useEffect(() => {
+    if (analytics) {
+      logEvent(analytics, 'landing_page_view');
+    }
+  }, [analytics]);
 
   const handleStartClick = () => {
     // 直接跳转到聊天页面，不再弹出表单

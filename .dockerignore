@@ -1,6 +1,10 @@
 .dockerignore
 .git
-.next
-Dockerfile
-README.md
+.env
+.env.local
 node_modules
+npm-debug.log
+README.md
+.next
+.vscode
+Dockerfile

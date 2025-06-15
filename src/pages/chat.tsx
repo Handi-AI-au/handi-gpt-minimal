@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { logEvent } from 'firebase/analytics'
 import ChatGPT from '@/components/ChatGPT'
 import { Layout } from 'antd'
 import { Content } from 'antd/lib/layout/layout'
 import Image from 'next/image'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 import FooterBar from '@/components/FooterBar'
 import HeaderBar from '@/components/HeaderBar'
@@ -11,6 +13,13 @@ import styles from './index.module.less'
 
 export default function Chat() {
   const [hasMessages, setHasMessages] = useState(false);
+  const analytics = useAnalytics();
+  
+  useEffect(() => {
+    if (analytics) {
+      logEvent(analytics, 'chat_page_view');
+    }
+  }, [analytics]);
   
   // Monitor message changes to determine whether to display the welcome interface
   useEffect(() => {

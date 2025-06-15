@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { logEvent } from 'firebase/analytics'
 
 import { ChatGPTProps, ChatRole } from './interface'
 import MessageItem from './MessageItem'
 import SendBar from './SendBar'
 import { useChatGPT } from './useChatGPT'
 import SubmitForm from '../SubmitForm'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 import './index.less'
 import 'highlight.js/styles/atom-one-dark.css'
@@ -36,6 +38,7 @@ const ChatGPT = (props: ChatGPTProps) => {
   const [showSubmitForm, setShowSubmitForm] = useState<boolean>(false)
   const [conversationCount, setConversationCount] = useState<number>(0)
   const [isButtonActive, setIsButtonActive] = useState<boolean>(false)
+  const analytics = useAnalytics();
 
   // 监听对话轮次变化
   useEffect(() => {
@@ -47,6 +50,19 @@ const ChatGPT = (props: ChatGPTProps) => {
     setIsButtonActive(userMessagesCount >= MIN_CONVERSATIONS_REQUIRED);
   }, [messages]);
 
+  // 监听消息变化，追踪对话轮次
+  useEffect(() => {
+    const userMessagesCount = messages.filter(msg => msg.role === ChatRole.User).length;
+    if (userMessagesCount > conversationCount) {
+      setConversationCount(userMessagesCount);
+      if (analytics) {
+        logEvent(analytics, 'chat_conversation_turns', {
+          turns_count: userMessagesCount
+        });
+      }
+    }
+  }, [messages, conversationCount, analytics]);
+
   // 计算还需要多少轮对话
   const getRemainingConversations = () => {
     return Math.max(0, MIN_CONVERSATIONS_REQUIRED - conversationCount);
@@ -57,6 +73,13 @@ const ChatGPT = (props: ChatGPTProps) => {
     console.log('Form data submitted:', formData);
     // 这个函数在SubmitForm内部已经处理，这里只是为了满足接口
   }
+
+  const handleSubmitConversation = () => {
+    if (analytics) {
+      logEvent(analytics, 'submit_conversation_clicked');
+    }
+    setShowSubmitForm(true);
+  };
 
   return (
     <div className="chat-wrapper">
@@ -71,7 +94,7 @@ const ChatGPT = (props: ChatGPTProps) => {
       <div className={`submit-btn-container ${isButtonActive ? 'active' : 'inactive'}`}>
         <button 
           className={`submit-btn ${isButtonActive ? 'active' : 'inactive'}`}
-          onClick={() => isButtonActive && setShowSubmitForm(true)}
+          onClick={handleSubmitConversation}
           disabled={!isButtonActive || loading}
           title={isButtonActive ? "Submit Conversation & Find Workers" : `${getRemainingConversations()} more exchanges needed to submit`}
         >

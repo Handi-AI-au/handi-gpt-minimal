@@ -1,16 +1,19 @@
-import React, { KeyboardEventHandler, useRef } from 'react'
+import React, { KeyboardEventHandler, useRef, useEffect } from 'react'
 import Image from 'next/image'
 
 import { ClearOutlined, DeleteOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons'
 
 import { ChatRole, SendBarProps } from './interface'
 import Show from './Show'
+import { logEvent } from 'firebase/analytics'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 const SendBar = (props: SendBarProps) => {
   const { loading, disabled, onSend, onClear, onStop, onImageUpload, uploadedImages, removeUploadedImage } = props
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const analytics = useAnalytics();
 
   const onInputAutoSize = () => {
     if (inputRef.current) {
@@ -28,6 +31,9 @@ const SendBar = (props: SendBarProps) => {
   }
 
   const handleSend = () => {
+    if (analytics) {
+      logEvent(analytics, 'chat_message_sent');
+    }
     const content = inputRef.current?.value || ''
     inputRef.current!.value = ''
     inputRef.current!.style.height = 'auto'
