@@ -1,54 +1,120 @@
 .header {
-  position: fixed;
-  z-index: 19;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
-  width: 100%;
-  height: 48px;
-  line-height: 48px;
-  background-color: #001529;
-  inset-block-start: 0;
-  inset-inline-end: 0;
-  padding-block: 0;
-  padding-inline: 16px;
-  .logoBar {
-    height: 100%;
-    a {
-      display: flex;
-      align-items: center;
-      height: 100%;
-      img {
-        height: 28px;
-      }
-      h1 {
-        height: 32px;
-        margin: 0 0 0 12px;
-        color: #fff;
-        font-weight: 600;
-        font-size: 18px;
-        line-height: 32px;
-        white-space: nowrap;
-      }
-    }
+  justify-content: space-between;
+  padding: 0 1rem;
+  height: 64px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 0.8;
   }
-  .right {
-    display: flex;
-    float: right;
-    height: 100%;
-    margin-left: auto;
-    overflow: hidden;
+  
+  img {
+    margin-right: 8px;
   }
-  .action {
-    display: flex;
-    align-items: center;
-    height: 48px;
-    padding: 0 12px;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.3s;
-    &:hover {
-      background: #252a3d;
-    }
+}
+
+.logoText {
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #1890ff, #722ed1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.navButton {
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0 16px;
+  height: 40px;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  
+  &.active {
+    background-color: #e6f7ff;
+    color: #1890ff;
+  }
+}
+
+.authButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.loginButton {
+  border-radius: 6px;
+  font-weight: 500;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.signupButton {
+  border-radius: 6px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+  
+  &:hover {
+    box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+  }
+}
+
+.postJobButton {
+  border-radius: 6px;
+  font-weight: 500;
+  background: #722ed1;
+  border: none;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(114, 46, 209, 0.2);
+  
+  &:hover {
+    background: #9254de;
+    box-shadow: 0 4px 8px rgba(114, 46, 209, 0.3);
+  }
+}
+
+.mobileMenu {
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: block;
   }
 }
 

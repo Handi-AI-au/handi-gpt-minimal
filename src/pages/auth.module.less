@@ -1,0 +1,135 @@
+.authContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.authMain {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 128px);
+  padding: 2rem 1rem;
+}
+
+.authCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  width: 100%;
+  max-width: 400px;
+  
+  @media (max-width: 768px) {
+    padding: 2rem;
+    margin: 1rem;
+  }
+}
+
+.authHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+  }
+  
+  p {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+.authForm {
+  .ant-form-item-label > label {
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+  
+  .ant-input {
+    border-radius: 8px;
+    border: 2px solid #f0f0f0;
+    
+    &:hover, &:focus {
+      border-color: #1890ff;
+    }
+  }
+  
+  .ant-input-password {
+    border-radius: 8px;
+    border: 2px solid #f0f0f0;
+    
+    &:hover, &:focus-within {
+      border-color: #1890ff;
+    }
+  }
+}
+
+.authButton {
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(24, 144, 255, 0.4);
+  }
+}
+
+.googleButton {
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: 2px solid #f0f0f0;
+  color: #666;
+  
+  &:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+  }
+  
+  .anticon {
+    color: #db4437;
+  }
+}
+
+.loginOptions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.forgotPassword {
+  padding: 0;
+  height: auto;
+  color: #1890ff;
+  
+  &:hover {
+    color: #40a9ff;
+  }
+}
+
+.authFooter {
+  text-align: center;
+  margin-top: 2rem;
+  
+  p {
+    color: #666;
+    margin: 0;
+    
+    a {
+      color: #1890ff;
+      font-weight: 500;
+      
+      &:hover {
+        color: #40a9ff;
+      }
+    }
+  }
+} 
