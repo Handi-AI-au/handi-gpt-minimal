@@ -11,7 +11,7 @@ const HeaderBar = () => {
 
   const navigationItems = [
     { key: 'home', label: 'Home', path: '/' },
-    { key: 'chat', label: 'Try Fix It Yourself', path: '/chat' },
+    { key: 'chat', label: 'Try Fix It Yourself', path: '/chat-original' },
     { key: 'job-board', label: 'Job Board', path: '/job-board' },
     { key: 'find-tradies', label: 'Find Tradies', path: '/find-tradies' },
   ]
