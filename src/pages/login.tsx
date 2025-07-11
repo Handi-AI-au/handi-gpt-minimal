@@ -6,24 +6,15 @@ import {
   GoogleOutlined
 } from '@ant-design/icons'
 import { useRouter } from 'next/router'
-import { logEvent } from 'firebase/analytics'
 import Link from 'next/link'
-import { useAnalytics } from '@/hooks/useAnalytics'
 import HeaderBar from '@/components/HeaderBar'
 import FooterBar from '@/components/FooterBar'
 import styles from './auth.module.less'
 
 export default function LoginPage() {
   const router = useRouter()
-  const analytics = useAnalytics()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (analytics) {
-      logEvent(analytics, 'login_page_view')
-    }
-  }, [analytics])
 
   const handleLogin = async (values: any) => {
     setLoading(true)
@@ -31,10 +22,6 @@ export default function LoginPage() {
       console.log('Login attempt:', values)
       // Here you would typically call your authentication API
       message.success('Login successful! Redirecting...')
-      
-      if (analytics) {
-        logEvent(analytics, 'login_attempt', { email: values.email })
-      }
       
       // For now, redirect to chat page
       setTimeout(() => {
@@ -49,16 +36,10 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = () => {
-    if (analytics) {
-      logEvent(analytics, 'google_login_click')
-    }
     message.info('Google login will be available soon!')
   }
 
   const handleForgotPassword = () => {
-    if (analytics) {
-      logEvent(analytics, 'forgot_password_click')
-    }
     message.info('Password reset will be available soon!')
   }
 

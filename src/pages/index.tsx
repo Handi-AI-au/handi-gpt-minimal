@@ -12,9 +12,7 @@ import {
   StarOutlined
 } from '@ant-design/icons'
 import { useRouter } from 'next/router'
-import { logEvent } from 'firebase/analytics'
 import Image from 'next/image'
-import { useAnalytics } from '@/hooks/useAnalytics'
 import HeaderBar from '@/components/HeaderBar'
 import FooterBar from '@/components/FooterBar'
 import styles from './index.module.less'
@@ -23,20 +21,10 @@ const { TextArea } = Input
 
 export default function HomePage() {
   const router = useRouter()
-  const analytics = useAnalytics()
   const [form] = Form.useForm()
   const [signupModalVisible, setSignupModalVisible] = useState(false)
 
-  useEffect(() => {
-    if (analytics) {
-      logEvent(analytics, 'home_page_view')
-    }
-  }, [analytics])
-
   const handleStartClick = () => {
-    if (analytics) {
-      logEvent(analytics, 'start_button_click')
-    }
     router.push('/chat')
   }
 
@@ -47,10 +35,6 @@ export default function HomePage() {
       message.success('Thank you for your interest! We\'ll notify you when we launch.')
       setSignupModalVisible(false)
       form.resetFields()
-      
-      if (analytics) {
-        logEvent(analytics, 'interest_signup', { email: values.email })
-      }
     } catch (error) {
       message.error('Something went wrong. Please try again.')
     }

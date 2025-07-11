@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { logEvent } from 'firebase/analytics'
 
 import { ChatGPTProps, ChatRole } from './interface'
 import MessageItem from './MessageItem'
 import SendBar from './SendBar'
 import { useChatGPT } from './useChatGPT'
 import SubmitForm from '../SubmitForm'
-import { useAnalytics } from '@/hooks/useAnalytics'
 
 import './index.less'
 import 'highlight.js/styles/atom-one-dark.css'
@@ -38,7 +36,6 @@ const ChatGPT = (props: ChatGPTProps) => {
   const [showSubmitForm, setShowSubmitForm] = useState<boolean>(false)
   const [conversationCount, setConversationCount] = useState<number>(0)
   const [isButtonActive, setIsButtonActive] = useState<boolean>(false)
-  const analytics = useAnalytics();
 
   // 监听对话轮次变化
   useEffect(() => {
@@ -55,13 +52,8 @@ const ChatGPT = (props: ChatGPTProps) => {
     const userMessagesCount = messages.filter(msg => msg.role === ChatRole.User).length;
     if (userMessagesCount > conversationCount) {
       setConversationCount(userMessagesCount);
-      if (analytics) {
-        logEvent(analytics, 'chat_conversation_turns', {
-          turns_count: userMessagesCount
-        });
-      }
     }
-  }, [messages, conversationCount, analytics]);
+  }, [messages, conversationCount]);
 
   // 计算还需要多少轮对话
   const getRemainingConversations = () => {
@@ -75,9 +67,6 @@ const ChatGPT = (props: ChatGPTProps) => {
   }
 
   const handleSubmitConversation = () => {
-    if (analytics) {
-      logEvent(analytics, 'submit_conversation_clicked');
-    }
     setShowSubmitForm(true);
   };
 

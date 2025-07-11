@@ -3,12 +3,8 @@ import '@/styles/globals.css'
 import 'antd/dist/antd.css'
 import type { AppProps } from 'next/app'
 import { ImageContextProvider } from '@/models/imageContext'
-import { useAnalytics } from '@/hooks/useAnalytics'
 
 export default function App({ Component, pageProps }: AppProps) {
-  // 初始化 analytics
-  useAnalytics();
-
   return (
     <>
       <Head>

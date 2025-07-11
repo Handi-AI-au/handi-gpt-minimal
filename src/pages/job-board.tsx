@@ -8,8 +8,6 @@ import {
   CheckCircleOutlined,
   SafetyOutlined
 } from '@ant-design/icons'
-import { logEvent } from 'firebase/analytics'
-import { useAnalytics } from '@/hooks/useAnalytics'
 import HeaderBar from '@/components/HeaderBar'
 import FooterBar from '@/components/FooterBar'
 import styles from './coming-soon.module.less'
@@ -17,27 +15,13 @@ import styles from './coming-soon.module.less'
 const { TextArea } = Input
 
 export default function JobBoardPage() {
-  const analytics = useAnalytics()
   const [form] = Form.useForm()
-
-  useEffect(() => {
-    if (analytics) {
-      logEvent(analytics, 'job_board_page_view')
-    }
-  }, [analytics])
 
   const handleSignup = async (values: any) => {
     try {
       console.log('Job board early access signup:', values)
       message.success('Thank you! We\'ll notify you when the Job Board launches.')
       form.resetFields()
-      
-      if (analytics) {
-        logEvent(analytics, 'job_board_early_access_signup', { 
-          email: values.email,
-          user_type: values.user_type 
-        })
-      }
     } catch (error) {
       message.error('Something went wrong. Please try again.')
     }

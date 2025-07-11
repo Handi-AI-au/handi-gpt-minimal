@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import { logEvent } from 'firebase/analytics'
 import ChatGPT from '@/components/ChatGPT'
 import { Layout } from 'antd'
 import { Content } from 'antd/lib/layout/layout'
 import Image from 'next/image'
-import { useAnalytics } from '@/hooks/useAnalytics'
 import { useRouter } from 'next/router'
 
 import FooterBar from '@/components/FooterBar'
@@ -14,14 +12,7 @@ import styles from './index.module.less'
 
 export default function ChatOriginal() {
   const [hasMessages, setHasMessages] = useState(false)
-  const analytics = useAnalytics()
   const router = useRouter()
-  
-  useEffect(() => {
-    if (analytics) {
-      logEvent(analytics, 'chat_original_page_view')
-    }
-  }, [analytics])
   
   // Handle initial message from URL params
   useEffect(() => {

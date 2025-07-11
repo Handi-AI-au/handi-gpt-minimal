@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Modal, Form, Input, Button, Select, Spin, Steps, message } from 'antd';
 import { useImageContext } from '@/models/imageContext';
 import { ChatMessage } from '@/components/ChatGPT/interface';
-import { logEvent } from 'firebase/analytics';
-import { useAnalytics } from '@/hooks/useAnalytics';
 
 // 表单接口定义
 interface SubmitFormProps {
@@ -44,7 +42,6 @@ const SubmitForm: React.FC<SubmitFormProps> = ({ visible, onClose, onSubmit, mes
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
-  const analytics = useAnalytics();
 
   // 处理表单提交
   const handleFormSubmit = async () => {
@@ -52,10 +49,6 @@ const SubmitForm: React.FC<SubmitFormProps> = ({ visible, onClose, onSubmit, mes
       await form.validateFields();
       const values = form.getFieldsValue();
       setLoading(true);
-      
-      if (analytics) {
-        logEvent(analytics, 'generate_report_clicked');
-      }
       
       // 调用ChatGPT API生成摘要、紧急程度和内容
       await generateSummaryFromChatGPT(values, messages);
@@ -152,9 +145,6 @@ Respond with the JSON object containing the requested information.`;
 
   // 最终提交报告
   const submitFinalReport = async () => {
-    if (analytics) {
-      logEvent(analytics, 'submit_contact_clicked');
-    }
     if (!previewData) return;
     
     setLoading(true);

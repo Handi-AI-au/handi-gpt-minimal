@@ -9,8 +9,6 @@ import {
   CheckCircleOutlined,
   SafetyCertificateOutlined
 } from '@ant-design/icons'
-import { logEvent } from 'firebase/analytics'
-import { useAnalytics } from '@/hooks/useAnalytics'
 import HeaderBar from '@/components/HeaderBar'
 import FooterBar from '@/components/FooterBar'
 import styles from './coming-soon.module.less'
@@ -18,27 +16,13 @@ import styles from './coming-soon.module.less'
 const { Option } = Select
 
 export default function FindTradiesPage() {
-  const analytics = useAnalytics()
   const [form] = Form.useForm()
-
-  useEffect(() => {
-    if (analytics) {
-      logEvent(analytics, 'find_tradies_page_view')
-    }
-  }, [analytics])
 
   const handleSignup = async (values: any) => {
     try {
       console.log('Find tradies early access signup:', values)
       message.success('Thank you! We\'ll notify you when Find Tradies launches.')
       form.resetFields()
-      
-      if (analytics) {
-        logEvent(analytics, 'find_tradies_early_access_signup', { 
-          email: values.email,
-          service_type: values.service_type 
-        })
-      }
     } catch (error) {
       message.error('Something went wrong. Please try again.')
     }

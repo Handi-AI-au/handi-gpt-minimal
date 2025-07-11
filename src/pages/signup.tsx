@@ -7,24 +7,15 @@ import {
   GoogleOutlined
 } from '@ant-design/icons'
 import { useRouter } from 'next/router'
-import { logEvent } from 'firebase/analytics'
 import Link from 'next/link'
-import { useAnalytics } from '@/hooks/useAnalytics'
 import HeaderBar from '@/components/HeaderBar'
 import FooterBar from '@/components/FooterBar'
 import styles from './auth.module.less'
 
 export default function SignupPage() {
   const router = useRouter()
-  const analytics = useAnalytics()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (analytics) {
-      logEvent(analytics, 'signup_page_view')
-    }
-  }, [analytics])
 
   const handleSignup = async (values: any) => {
     setLoading(true)
@@ -32,10 +23,6 @@ export default function SignupPage() {
       console.log('Signup attempt:', values)
       // Here you would typically call your authentication API
       message.success('Account created successfully! Please check your email to verify your account.')
-      
-      if (analytics) {
-        logEvent(analytics, 'signup_attempt', { email: values.email })
-      }
       
       // For now, redirect to login page
       setTimeout(() => {
@@ -50,9 +37,6 @@ export default function SignupPage() {
   }
 
   const handleGoogleSignup = () => {
-    if (analytics) {
-      logEvent(analytics, 'google_signup_click')
-    }
     message.info('Google signup will be available soon!')
   }
 
