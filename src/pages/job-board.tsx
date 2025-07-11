@@ -117,7 +117,7 @@ export default function JobBoardPage() {
 
         <section className={styles.features}>
           <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>What You'll Get</h2>
+            <h2 className={styles.sectionTitle}>What You&apos;ll Get</h2>
             <div className={styles.featuresGrid}>
               {features.map((feature, index) => (
                 <Card key={index} className={styles.featureCard}>
