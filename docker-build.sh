@@ -6,4 +6,5 @@ docker build \
   --build-arg NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=657064704852 \
   --build-arg NEXT_PUBLIC_FIREBASE_APP_ID=1:657064704852:web:269f87d273bc06dff3e6c1 \
   --build-arg NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-TMT9VT26P5 \
+  --build-arg NEXT_PUBLIC_BACKEND_API_URL=https://handi-gpt-backend-657064704852.australia-southeast2.run.app \
   -t australia-southeast2-docker.pkg.dev/handi-62f09/handi-frontend/handi-gpt-minimal:latest . 
