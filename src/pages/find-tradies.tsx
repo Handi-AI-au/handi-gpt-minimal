@@ -20,11 +20,39 @@ export default function FindTradiesPage() {
 
   const handleSignup = async (values: any) => {
     try {
-      console.log('Find tradies early access signup:', values)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+      if (!backendUrl) {
+        throw new Error('Backend API URL is not configured');
+      }
+
+      const response = await fetch(`${backendUrl}/early-access/customer-access`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          full_name: values.fullName,
+          email: values.email,
+          suburb: values.suburb,
+          service_needed: values.serviceNeeded
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('API Error Response:', errorData);
+        throw new Error(`Failed to submit signup: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Find tradies early access signup successful:', result);
+      
       message.success('Thank you! We\'ll notify you when Find Tradies launches.')
       form.resetFields()
     } catch (error) {
-      message.error('Something went wrong. Please try again.')
+      console.error('Error submitting find tradies signup:', error);
+      message.error(`Failed to submit signup: ${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}`)
     }
   }
 
@@ -135,7 +163,7 @@ export default function FindTradiesPage() {
               >
                 <div className={styles.formRow}>
                   <Form.Item
-                    name="name"
+                    name="fullName"
                     label="Full Name"
                     rules={[{ required: true, message: 'Please enter your name' }]}
                   >
@@ -164,7 +192,7 @@ export default function FindTradiesPage() {
                   </Form.Item>
                   
                   <Form.Item
-                    name="service_type"
+                    name="serviceNeeded"
                     label="Service Needed"
                     rules={[{ required: true, message: 'Please select a service type' }]}
                   >

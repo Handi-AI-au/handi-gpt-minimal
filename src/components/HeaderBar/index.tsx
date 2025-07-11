@@ -28,13 +28,6 @@ const HeaderBar = () => {
           {item.label}
         </Menu.Item>
       ))}
-      <Menu.Divider />
-      <Menu.Item key="signup" onClick={() => handleNavigation('/signup')}>
-        Sign Up
-      </Menu.Item>
-      <Menu.Item key="login" onClick={() => handleNavigation('/login')}>
-        Login
-      </Menu.Item>
     </Menu>
   )
 
@@ -60,23 +53,6 @@ const HeaderBar = () => {
             </Button>
           ))}
         </nav>
-
-        {/* Auth Buttons */}
-        <div className={styles.authButtons}>
-          <Button 
-            className={styles.loginButton} 
-            onClick={() => handleNavigation('/login')}
-          >
-            Login
-          </Button>
-          <Button 
-            type="primary" 
-            className={styles.signupButton}
-            onClick={() => handleNavigation('/signup')}
-          >
-            Sign Up
-          </Button>
-        </div>
 
         {/* Mobile Menu */}
         <div className={styles.mobileMenu}>

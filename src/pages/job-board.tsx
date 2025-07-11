@@ -19,11 +19,39 @@ export default function JobBoardPage() {
 
   const handleSignup = async (values: any) => {
     try {
-      console.log('Job board early access signup:', values)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+      if (!backendUrl) {
+        throw new Error('Backend API URL is not configured');
+      }
+
+      const response = await fetch(`${backendUrl}/early-access/job-board`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          full_name: values.fullName,
+          email: values.email,
+          business_name: values.businessName,
+          specialties: values.specialties
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('API Error Response:', errorData);
+        throw new Error(`Failed to submit signup: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Job board early access signup successful:', result);
+      
       message.success('Thank you! We\'ll notify you when the Job Board launches.')
       form.resetFields()
     } catch (error) {
-      message.error('Something went wrong. Please try again.')
+      console.error('Error submitting job board signup:', error);
+      message.error(`Failed to submit signup: ${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}`)
     }
   }
 
@@ -118,7 +146,7 @@ export default function JobBoardPage() {
               >
                 <div className={styles.formRow}>
                   <Form.Item
-                    name="name"
+                    name="fullName"
                     label="Full Name"
                     rules={[{ required: true, message: 'Please enter your name' }]}
                   >
@@ -138,7 +166,7 @@ export default function JobBoardPage() {
                 </div>
                 
                 <Form.Item
-                  name="business_name"
+                  name="businessName"
                   label="Business Name"
                   rules={[{ required: true, message: 'Please enter your business name' }]}
                 >

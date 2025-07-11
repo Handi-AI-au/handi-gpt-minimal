@@ -175,7 +175,12 @@ Respond with the JSON object containing the requested information.`;
       };
       
       // 发送到外部API
-      const response = await fetch('https://handi-gpt-backend-657064704852.australia-southeast2.run.app/report/create', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+      if (!backendUrl) {
+        throw new Error('Backend API URL is not configured');
+      }
+      
+      const response = await fetch(`${backendUrl}/report/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

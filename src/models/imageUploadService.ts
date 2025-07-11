@@ -4,7 +4,11 @@
  */
 
 // 外部API的基础URL
-const EXTERNAL_API_BASE_URL = 'https://handi-gpt-backend-657064704852.australia-southeast2.run.app';
+const EXTERNAL_API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+
+if (!EXTERNAL_API_BASE_URL) {
+  throw new Error('NEXT_PUBLIC_BACKEND_API_URL environment variable is not configured');
+}
 
 export interface ImageUploadResponse {
   image_path: string;

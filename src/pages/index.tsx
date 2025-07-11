@@ -25,18 +25,44 @@ export default function HomePage() {
   const [signupModalVisible, setSignupModalVisible] = useState(false)
 
   const handleStartClick = () => {
-    router.push('/chat')
+    router.push('/chat-original')
   }
 
   const handleSignupInterest = async (values: any) => {
     try {
-      // Here you would typically send to your backend
-      console.log('Interest signup:', values)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+      if (!backendUrl) {
+        throw new Error('Backend API URL is not configured');
+      }
+
+      const response = await fetch(`${backendUrl}/early-access/user-program`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          email: values.email,
+          name: values.name,
+          home_repair_challenges: values.interests || null
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('API Error Response:', errorData);
+        throw new Error(`Failed to submit signup: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Interest signup successful:', result);
+      
       message.success('Thank you for your interest! We\'ll notify you when we launch.')
       setSignupModalVisible(false)
       form.resetFields()
     } catch (error) {
-      message.error('Something went wrong. Please try again.')
+      console.error('Error submitting interest signup:', error);
+      message.error(`Failed to submit signup: ${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}`)
     }
   }
 
